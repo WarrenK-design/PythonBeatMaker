@@ -1,5 +1,6 @@
 ## House Keeping 
 # Github - WarrenKDesign 
+# 1:05 mins in 
 
 ### Imports ###
 # pygame - 
@@ -8,7 +9,6 @@ import pygame
 from pygame import mixer 
 
 pygame.init() 
-
 
 ### Variables ###
 # Screen Size 
@@ -22,6 +22,7 @@ gray  = (128,128,128)
 green = (0,255,0)
 gold  = (212, 175, 55)
 blue  = (0, 255, 255)
+dark_grey = (50, 50, 50)
 
 
 # Create the screen 
@@ -29,7 +30,7 @@ screen = pygame.display.set_mode([width,height])
 pygame.display.set_caption('Beat Maker')
 # Set the font style and size
 label_font = pygame.font.Font('freesansbold.ttf', 32)
-
+medium_font = pygame.font.Font('freesansbold.ttf', 24)
 # Frames per second 
 fps = 60
 # Timer for refresh rate 
@@ -55,7 +56,47 @@ instruments = 6
 boxes   = [] 
 clicked = [[-1 for _ in range(beats)] for _ in range(instruments)] 
 
+### Load in sounds ###
+hi_hat = mixer.Sound('sounds/hi hat.WAV')
+clap = mixer.Sound('sounds/clap.WAV')
+crash = mixer.Sound('sounds/crash.WAV')
+bass = mixer.Sound('sounds/kick.WAV')
+snare = mixer.Sound('sounds/snare.WAV')
+tom = mixer.Sound('sounds/tom.WAV')
+
+# Increase the number of channels music can be played from 
+pygame.mixer.set_num_channels(instruments*3)
+
+
 #### Functions ####
+def play_notes():
+    '''
+    Plays the notes for the instruments 
+    '''
+    for i in range(len(clicked)):
+        # If clciked at i being the row and active beat being column = 1 then its clciked 
+        if clicked[i][active_beat] == 1:
+            if i == 0:
+                hi_hat.play()
+            if i == 1:
+                snare.play()
+            if i == 2:
+                bass.play()
+            if i == 3:
+                crash.play()
+            if i == 4:
+                clap.play()
+            if i == 5:
+                tom.play()
+            
+
+
+
+
+
+
+
+
 def draw_grid(clicks,beat):
     '''
     Inputs:
@@ -123,6 +164,19 @@ while run:
     screen.fill(black)
     # Draw the screen  - Returns boxes which will be used to see if any of the beat boxes have been clicked
     boxes = draw_grid(clicked,active_beat)
+    # Lower menu buttons 
+    play_pause = pygame.draw.rect(screen, gray, [50, height - 150, 200, 100], 0, 5)
+    play_text = label_font.render('Play/Pause', True, white)
+    screen.blit(play_text, (60, height -130))
+    if playing:
+        play_sub_text = medium_font.render('Playing', True, dark_grey)
+    else:
+        play_sub_text = medium_font.render('Paused', True, dark_grey)
+    screen.blit(play_sub_text, (100, height -100))
+    # See if the beat has changed -> Will change once per loop 
+    if beat_changed:
+        play_notes()
+        beat_changed = False
     # Checks the events 
     for event in pygame.event.get():
         # Quite event - quit the game 
@@ -138,6 +192,16 @@ while run:
                     coords = boxes[i][1]
                     # Set the clciked box from -1 to 1 
                     clicked[coords[1]][coords[0]] *= -1
+        # Mouse has been clciked and released 
+        if event.type == pygame.MOUSEBUTTONUP:
+            # Clicking of the play//pause button 
+            if play_pause.collidepoint(event.pos):
+                if playing:
+                    playing = False
+                elif not playing:
+                    playing = True 
+
+
     # beat_lenght - The lenght of each beat 
     beat_length = (fps*60) // bpm 
 
