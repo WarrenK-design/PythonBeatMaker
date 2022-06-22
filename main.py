@@ -88,13 +88,6 @@ def play_notes():
                 clap.play()
             if i == 5:
                 tom.play()
-            
-
-
-
-
-
-
 
 
 def draw_grid(clicks,beat):
@@ -173,6 +166,21 @@ while run:
     else:
         play_sub_text = medium_font.render('Paused', True, dark_grey)
     screen.blit(play_sub_text, (100, height -100))
+    ### BPM - Displays the current BPM ###
+    bpm_rect = pygame.draw.rect(screen, gray, [300, height-150, 215, 100], 5, 5)
+    bpm_text = medium_font.render('Beats Per Minute', True, white)
+    screen.blit(bpm_text,(308, height-130))
+    bpm_text2 = label_font.render(f'{bpm}', True, white)
+    screen.blit(bpm_text2,(370, height-100))
+    ### Add/Sub BPM 
+    bpm_add_rect = pygame.draw.rect(screen, gray, [525, height - 150, 48, 48], 0, 5)
+    bpm_sub_rect = pygame.draw.rect(screen, gray, [525, height - 100, 48, 48], 0, 5) 
+    add_text     = medium_font.render('+5',True, white) 
+    sub_text     = medium_font.render('-5',True, white)
+    screen.blit(add_text,(535, height-140))
+    screen.blit(sub_text,(535,height-90))
+
+
     # See if the beat has changed -> Will change once per loop 
     if beat_changed:
         play_notes()
@@ -200,6 +208,11 @@ while run:
                     playing = False
                 elif not playing:
                     playing = True 
+            # Add/Sub the bpm 
+            elif bpm_add_rect.collidepoint(event.pos):
+                bpm+=5
+            elif bpm_sub_rect.collidepoint(event.pos) and bpm != 5:
+                bpm-=5
 
 
     # beat_lenght - The lenght of each beat 
